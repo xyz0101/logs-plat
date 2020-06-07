@@ -1,0 +1,29 @@
+
+
+spring:
+  data:
+    elasticsearch:
+      cluster-name: elasticsearch-cluster
+      cluster-nodes: 172.16.134.98:9300,172.16.134.98:9301,172.16.134.98:9302
+
+  mail:
+    host: mail.qq.com
+    username: 1394046585@qq.com
+    password: uuujpjseabiwhcjc
+    properties:
+      smtp:
+        protocol: smtp
+        connectiontimeout: 60000
+        timeout: 60000
+        auth: true
+        starttls:
+          enable: true
+          required: true
+
+logging:
+  level:
+    root: info
+    org.apache.kafka: error
+server:
+  port: 10080
+
