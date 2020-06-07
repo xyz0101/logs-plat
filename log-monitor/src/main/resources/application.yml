@@ -8,8 +8,8 @@ spring:
 
   mail:
     host: mail.qq.com
-    username: 1394046585@qq.com
-    password: uuujpjseabiwhcjc
+    username: xxxxxxxxxxxx
+    password: xxxxxxxxxxx
     properties:
       smtp:
         protocol: smtp
