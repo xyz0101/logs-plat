@@ -34,24 +34,55 @@ import java.util.concurrent.*;
 @Component
 @LogConsumer
 public class Consumer {
+    /**
+     * kafka的地址
+     */
+    private static final String IP_ADDR = "172.16.161.51:9002,172.16.161.51:9003,172.16.161.51:9004";
     private static final Logger logger = LoggerFactory.getLogger(Consumer.class);
-    private static final ConcurrentHashMap<String,Thread> threadConcurrentHashMap = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, UserConfig> userConfigConcurrentHashMap = new ConcurrentHashMap<>();
-    private static final int MAX_SIZE = 500;
+    /**
+     * 线程容器，保存开启了的线程
+     */
+    private static final ConcurrentHashMap<String,Thread> THREAD_CONCURRENT_HASH_MAP = new ConcurrentHashMap<>();
+    /**
+     * 缓存各个系统的配置数据
+     */
+    private static final ConcurrentHashMap<String, UserConfig> USER_CONFIG_CONCURRENT_HASH_MAP = new ConcurrentHashMap<>();
+    /**
+     * 最大的线程数目
+     */
+    private static final int MAX_SIZE = 200;
+    /**
+     * 查询系统的配置数据的SQL
+     */
     private static final String USER_CONFIG_SQL = "select * from user_system_config where config_id=? and object_version_number=?";
-    private static ExecutorService executorService =
+    /**
+     * 线程池
+     */
+    private static final ExecutorService EXECUTOR_SERVICE =
             new ThreadPoolExecutor(10,MAX_SIZE,60,
                     TimeUnit.SECONDS,new ArrayBlockingQueue<>(1),new ThreadPoolExecutor.AbortPolicy());
-    private static final ConcurrentHashMap<String,TopicPartition> topics = new ConcurrentHashMap<>();
-
+    /**
+     * 缓存所有的主题
+     */
+    private static final ConcurrentHashMap<String,TopicPartition> TOPICS = new ConcurrentHashMap<>();
+    /**
+     *当前服务的根路径，也就是模块名
+     */
     private static final String ROOTPATH ;
+
     static {
+        //启动服务
+        ROOTPATH = startServer();
+    }
+
+
+    private static String  startServer() {
         //初始化客户端
         if (ZkUtils.client!=null) {
             ZkUtils.client.start();
         }
         //获取根路径
-         ROOTPATH = ZkUtils.getModuleName();
+        String rootPath = ZkUtils.getModuleName();
         //启动服务，初始注册
         ZkUtils.createNode(ROOTPATH,"");
         List<String> subNodeValue = ZkUtils.getSubNodeValue();
@@ -60,11 +91,12 @@ public class Consumer {
                 String[] split = node.split("\\^");
                 String topic = split[0];
                 String partitionStr = ZkUtils.resolvePartition(split[1], topic);
-                topics.put(node,new TopicPartition(topic,Integer.parseInt(partitionStr)));
+                TOPICS.put(node,new TopicPartition(topic,Integer.parseInt(partitionStr)));
             }
         }
-        topics.forEach(Consumer::submitThread);
-}
+        TOPICS.forEach(Consumer::submitThread);
+        return rootPath;
+    }
 
     /**
      * 提交消费者线程
@@ -72,11 +104,11 @@ public class Consumer {
      * @param val
      */
     private static void submitThread(String key, TopicPartition val) {
-        if(threadConcurrentHashMap.size()>=MAX_SIZE){
+        if(THREAD_CONCURRENT_HASH_MAP.size()>=MAX_SIZE){
             throw new RuntimeException("线程资源已经达到最大数目："+MAX_SIZE);
         }
         String path = ROOTPATH+"/"+key;
-        executorService.submit(()->{consumer(key,val);});
+        EXECUTOR_SERVICE.submit(()->{consumer(key,val);});
         String nodeData = ZkUtils.getNodeData(path);
         if (nodeData.contains(";")) {
             setConfigCache(path,nodeData);
@@ -111,11 +143,11 @@ public class Consumer {
      */
     private void onUpdate(String data) {
         String node = data.replace(ROOTPATH + "/", "");
-        topics.remove(node);
+        TOPICS.remove(node);
         //线程信息
-        threadConcurrentHashMap.get(node).interrupt();
+        THREAD_CONCURRENT_HASH_MAP.get(node).interrupt();
         //用户的配置信息
-        userConfigConcurrentHashMap.remove(node);
+        USER_CONFIG_CONCURRENT_HASH_MAP.remove(node);
     }
 
     /**
@@ -128,7 +160,7 @@ public class Consumer {
         String topic = split[0];
         String partitionStr = ZkUtils.resolvePartition(split[1], topic);
         TopicPartition partition = new TopicPartition(topic, Integer.parseInt(partitionStr));
-        TopicPartition topicPartition = topics.putIfAbsent(node, partition);
+        TopicPartition topicPartition = TOPICS.putIfAbsent(node, partition);
         if (topicPartition == null) {
             submitThread(node, partition);
         }
@@ -152,8 +184,8 @@ public class Consumer {
         try {
             UserConfig userConfig = DBUtils.quickExeSelectResultForObject(connection, USER_CONFIG_SQL, UserConfig.class, id, version);
             if(userConfig!=null){
-                userConfigConcurrentHashMap.put(key,userConfig);
-                logger.info("节点：{} 修改后的配置：{}",key,userConfigConcurrentHashMap.get(key));
+                USER_CONFIG_CONCURRENT_HASH_MAP.put(key,userConfig);
+                logger.info("节点：{} 修改后的配置：{}",key,USER_CONFIG_CONCURRENT_HASH_MAP.get(key));
             }else{
                 logger.warn("配置为空");
             }
@@ -169,7 +201,7 @@ public class Consumer {
      * @param partitions
      */
     public static  void consumer(String key, TopicPartition partitions){
-        threadConcurrentHashMap.putIfAbsent(key,Thread.currentThread());
+        THREAD_CONCURRENT_HASH_MAP.putIfAbsent(key,Thread.currentThread());
         KafkaConsumer<String, String>  kafkaConsumer = new KafkaConsumer<>(getKafkaProperties());
         kafkaConsumer.assign(Collections.singletonList(partitions));
         logger.info("注册主题和分区：{}   {}",partitions.topic(),partitions.partition());
@@ -197,7 +229,7 @@ public class Consumer {
      */
     private static Properties getKafkaProperties() {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", "172.16.161.51:9002,172.16.161.51:9003,172.16.161.51:9004");//xxx服务器ip
+        properties.put("bootstrap.servers",IP_ADDR);//xxx服务器ip
         properties.put("group.id", ZkUtils.getLocalIp()+UUID.randomUUID().toString());
 //        properties.put("enable.auto.commit", "true");
 //        properties.put("auto.commit.interval.ms", "1000");
@@ -217,7 +249,7 @@ public class Consumer {
      * @param kafkaConsumer
      */
     private static void dealMessage(String key,ConsumerRecord<String, String> record, KafkaConsumer<String, String> kafkaConsumer) {
-        UserConfig userConfig = userConfigConcurrentHashMap.get( key);
+        UserConfig userConfig = USER_CONFIG_CONCURRENT_HASH_MAP.get( key);
         String[] chains = new String[0];
         if (userConfig!=null&&userConfig.getIgnoreChains()!=null) {
             chains=userConfig.getIgnoreChains().split(";");

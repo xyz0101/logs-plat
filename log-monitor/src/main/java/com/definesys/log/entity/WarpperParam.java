@@ -16,7 +16,9 @@ public class WarpperParam<T> {
     private byte[] messageContent;
 
     private ProcesserNode<T> processerNode;
-
+    /**
+     * 用户的系统配置信息
+     */
     private UserConfig userConfig;
     /**
      * 额外的消息，默认是在检查如果需要预警的时候就会把通知消息放在这里面

@@ -41,6 +41,7 @@ public class ZkUtils {
     // 哈希函数接口
     private static final String URL = "http://172.16.134.98/hash/hash/getHashValue?key=";
     //服务模块节点名称存储路径，用作服务的上下线
+    //存储了
     public static final String MODULE_NAME_PATH="/logplatform/module/names";
     //模块根路径 存储系统的主题，分区等等信息
     private static final String MODULE_NAME_ROOT="/logsync/";

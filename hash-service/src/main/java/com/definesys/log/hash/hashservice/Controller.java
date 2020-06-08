@@ -18,10 +18,11 @@ import java.io.InputStreamReader;
 @RestController
 @RequestMapping("/hash")
 public class Controller {
+    private static final String PATH="/data/golang/hash.sh ";
 
         @GetMapping("/getHashValue")
         public String getHashValue(String key,String max) throws IOException, InterruptedException {
-            Process exec = Runtime.getRuntime().exec("/data/golang/hash.sh "+key+" "+max);
+            Process exec = Runtime.getRuntime().exec(PATH+" "+key+" "+max);
             int status = exec.waitFor();
             if (status != 0) {
                 return "脚本调用失败 ";

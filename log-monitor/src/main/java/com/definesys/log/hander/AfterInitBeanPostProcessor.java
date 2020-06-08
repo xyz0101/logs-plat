@@ -56,6 +56,10 @@ public class AfterInitBeanPostProcessor  implements ApplicationListener<ContextR
 
     }
 
+    /**
+     * 启动心跳检测
+     * @param port
+     */
     private void startHeartbeatServer(int port) {
         new Thread(()->{
             EventLoopGroup group = new NioEventLoopGroup();
@@ -94,6 +98,10 @@ public class AfterInitBeanPostProcessor  implements ApplicationListener<ContextR
 
     }
 
+    /**
+     * 获取可用端口
+     * @return
+     */
     private int getPort() {
         ServerSocket serverSocket = null; //读取空闲的可用端口
         try {
@@ -111,6 +119,10 @@ public class AfterInitBeanPostProcessor  implements ApplicationListener<ContextR
         ZkUtils.registerModuleName(data);
     }
 
+    /**
+     * 注册processer
+     * @param applicationContext
+     */
     private void registerProcessNode(ApplicationContext applicationContext) {
         if(ZkUtils.client.getState()!= CuratorFrameworkState.STARTED) {
             ZkUtils.client.start();
