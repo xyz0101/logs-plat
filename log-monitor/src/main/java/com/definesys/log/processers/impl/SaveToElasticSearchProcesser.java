@@ -41,7 +41,9 @@ public class SaveToElasticSearchProcesser extends AbstractProcessChain {
     public void processMessage(WarpperParam<ProcessChain> param) {
         String data = new String(param.getMessageContent());
         UserConfig userConfig = param.getUserConfig();
-        String indexName = IndexUtil.getNewIndexName(userConfig.getIndexSuffix(),userConfig.getPlaceOnFileTime(),userConfig.getPlaceOnFileTimeUnit(),userConfig.getSystemCode());
+        String indexName = IndexUtil.getNewIndexName(userConfig.getIndexSuffix(),userConfig.getPlaceOnFileTime(),
+                userConfig.getPlaceOnFileTimeUnit(),userConfig.getSystemCode());
+        indexName=indexName.toLowerCase();
         logger.info("索引名称：{}",indexName);
 
         if(!elasticsearchTemplate.indexExists(indexName)){

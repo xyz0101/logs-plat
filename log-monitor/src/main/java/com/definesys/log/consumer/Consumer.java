@@ -72,17 +72,12 @@ public class Consumer {
 
     static {
         //启动服务
-        ROOTPATH = startServer();
-    }
-
-
-    private static String  startServer() {
         //初始化客户端
         if (ZkUtils.client!=null) {
             ZkUtils.client.start();
         }
         //获取根路径
-        String rootPath = ZkUtils.getModuleName();
+        ROOTPATH = ZkUtils.getModuleName();
         //启动服务，初始注册
         ZkUtils.createNode(ROOTPATH,"");
         List<String> subNodeValue = ZkUtils.getSubNodeValue();
@@ -95,8 +90,10 @@ public class Consumer {
             }
         }
         TOPICS.forEach(Consumer::submitThread);
-        return rootPath;
     }
+
+
+
 
     /**
      * 提交消费者线程

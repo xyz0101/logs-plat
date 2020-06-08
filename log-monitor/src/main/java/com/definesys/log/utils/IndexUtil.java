@@ -32,7 +32,13 @@ public class IndexUtil {
             String sysKey = split[0] + "_" + split[1]+"_";
             String name = sysKey + suffix+"_" + timeStr;
             if(timeStr==null){
-                return INDEX_NAMES.get(systemKey);
+                 name = INDEX_NAMES.get(systemKey);
+                if (name == null) {
+                    timeStr =getCurrentTimeStr(timeUnit);
+                    name = sysKey + suffix+"_" + timeStr;
+                    INDEX_NAMES.put(systemKey,name);
+                }
+                return name;
             }else{
                 name = name.toLowerCase();
                 INDEX_NAMES.put(systemKey,name);
@@ -84,6 +90,42 @@ public class IndexUtil {
                 sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
                 return sdf.format(date);
             }
+        }
+        return null;
+    }
+
+    public static String getCurrentTimeStr(String text) throws ParseException {
+        Date date = new Date();
+        //设置转换的日期格式
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //开始时间
+        Date startDate = sdf.parse("2000-01-01 00:00:00");
+
+        if(YEAR.getText().equals(text)){
+
+                sdf = new SimpleDateFormat("yyyy");
+                return sdf.format(date);
+
+        }else  if(MONTH.getText().equals(text)){
+
+                sdf = new SimpleDateFormat("yyyy_MM");
+                return sdf.format(date);
+
+        }else  if(DAY.getText().equals(text)){
+
+                sdf = new SimpleDateFormat("yyyy_MM_dd");
+                return sdf.format(date);
+
+        }else  if(HOUR.getText().equals(text)){
+
+                sdf = new SimpleDateFormat("yyyy_MM_dd_HH");
+                return sdf.format(date);
+
+        }else  if(MIN.getText().equals(text)){
+
+                sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+                return sdf.format(date);
+
         }
         return null;
     }

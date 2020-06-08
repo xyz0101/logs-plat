@@ -44,7 +44,7 @@ public class ZkUtils {
     //存储了
     public static final String MODULE_NAME_PATH="/logplatform/module/names";
     //模块根路径 存储系统的主题，分区等等信息
-    private static final String MODULE_NAME_ROOT="/logsync/";
+    public static final String MODULE_NAME_ROOT="/logsync/";
 
     static{
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
@@ -106,15 +106,12 @@ public class ZkUtils {
      * @return
      */
     public static boolean createNode(String path,String value)  {
-        if (isExists(path)) {
-//                throw  new RuntimeException("节点 "+path+" 已经被使用！");
-        }else {
             try {
                 client.create().creatingParentsIfNeeded().forPath(path, value.getBytes());
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
+//                e.printStackTrace();
             }
-        }
         return true;
 
     }
@@ -205,6 +202,7 @@ public class ZkUtils {
         try {
             bytes = client.getData().forPath(path);
         } catch (Exception e) {
+            logger.error(path);
             e.printStackTrace();
         }
         String s = new String(bytes);

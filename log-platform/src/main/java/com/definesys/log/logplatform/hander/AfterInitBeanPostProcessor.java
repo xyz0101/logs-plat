@@ -3,7 +3,6 @@ package com.definesys.log.logplatform.hander;
 import com.definesys.log.common.utils.T;
 import com.definesys.log.common.utils.zk.ZkUtils;
 import com.definesys.log.logplatform.heartbeat.HeartBeatClient;
-import com.google.common.collect.Maps;
 import io.netty.channel.ChannelFuture;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.slf4j.Logger;
