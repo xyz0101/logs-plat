@@ -3,6 +3,7 @@ package com.definesys.log.logplatform.controller;
 import com.definesys.log.common.entity.http.PageData;
 import com.definesys.log.common.entity.http.Response;
 import com.definesys.log.common.utils.zk.ZkUtils;
+import com.definesys.log.logplatform.dto.LogInfoDTO;
 import com.definesys.log.logplatform.entity.pos.PartitionInfo;
 import com.definesys.log.logplatform.entity.pos.TopicInfo;
 import com.definesys.log.logplatform.entity.pos.UserSystemConfig;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author ：jenkin
@@ -111,4 +113,11 @@ public class Controller {
 
     }
 
+    //通过接口方式保存日志到kafka
+    @PostMapping("/saveLogicToKafka")
+    @ApiOperation("通过接口方式保存日志到kafka")
+    public Response saveLogicToKafka(@RequestBody LogInfoDTO logInfoDTO){
+        logPlatformService.saveLogicToKafka(logInfoDTO);
+        return Response.ok();
+    }
 }

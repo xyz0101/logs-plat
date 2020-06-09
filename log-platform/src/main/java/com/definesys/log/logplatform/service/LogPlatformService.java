@@ -4,6 +4,8 @@ import com.definesys.log.common.entity.http.PageData;
 import com.definesys.log.common.utils.ApplyUtils;
 import com.definesys.log.common.utils.zk.ZkUtils;
 import com.definesys.log.logplatform.balanceloaders.BalanceLoader;
+import com.definesys.log.logplatform.dto.LogInfoDTO;
+import com.definesys.log.logplatform.dto.Productor;
 import com.definesys.log.logplatform.entity.pos.PartitionInfo;
 import com.definesys.log.logplatform.entity.pos.TopicInfo;
 import com.definesys.log.logplatform.entity.pos.UserSystemConfig;
@@ -152,5 +154,16 @@ public class LogPlatformService {
     public int getAvailablePartitionNumber() {
         //TODO
         return 0;
+    }
+
+    public void saveLogicToKafka(LogInfoDTO logInfoDTO) {
+        //解析真正的hash分区
+        //TODO：解析真正的hash分区
+        String partitionNumber = logInfoDTO.getPartitionNumber();
+        this.applyPartitionKey(logInfoDTO.getPartitionTopic());
+        int partition =0;
+        //存储数据到队列中
+        Productor productor = new Productor();
+        productor.produce1(logInfoDTO.getPartitionTopic() ,partition,logInfoDTO) ;
     }
 }

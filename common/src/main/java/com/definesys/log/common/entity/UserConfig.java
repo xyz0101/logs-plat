@@ -44,7 +44,7 @@ public class UserConfig {
     @Column
     private String keepLogTimeUnit;
 
-    @ApiModelProperty(notes = "索引后缀，比如 jenkin-mysql，最终索引会命名为 Topic_partitionKey_indexSuffix_年月日时分， 根据配置的归档单位会省略部分，例如配置到天，就会省略时，分")
+    @ApiModelProperty(notes = "索引后缀，比如 jenkin_mysql，最终索引会命名为 Topic_partitionKey_indexSuffix_年月日时分， 根据配置的归档单位会省略部分，例如配置到天，就会省略时，分")
     @Column
     private String indexSuffix;
 
