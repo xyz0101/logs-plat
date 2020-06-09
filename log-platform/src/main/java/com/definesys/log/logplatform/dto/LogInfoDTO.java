@@ -33,7 +33,7 @@ public class LogInfoDTO implements Serializable {
     private Timestamp creationDate;
 
     @ApiModelProperty(notes = "日志信息")
-    private JSONObject logger;
+    private Object logger;
 
     @ApiModelProperty(notes = "日志的级别：DEBUG,INFO,ERROR,WARN")
     private String level;

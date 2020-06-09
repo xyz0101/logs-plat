@@ -46,19 +46,12 @@ public class Productor {
         }
     }
     public void produce1 (String topic, int partition ,LogInfoDTO logInfoDTO) {
-        int messageNo = 1;
-        final int COUNT = 5;
-        while (messageNo < COUNT) {
-            String key = String.valueOf(messageNo);
-            //String data = String.format("hello KafkaProducer message %s from" + topic + " " + UUID.randomUUID(), key);
-            String data = JSONObject.toJSONString(logInfoDTO);
-            try {
-                System.out.println("发送消息：" + data);
-                producer.send(new ProducerRecord<String, String>(topic,partition,null,data));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            messageNo++;
+        String data = JSONObject.toJSONString(logInfoDTO);
+        try {
+            System.out.println("发送消息：" + data);
+            producer.send(new ProducerRecord<String, String>(topic,partition,null,data));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

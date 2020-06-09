@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -157,13 +158,21 @@ public class LogPlatformService {
     }
 
     public void saveLogicToKafka(LogInfoDTO logInfoDTO) {
-        //解析真正的hash分区
-        //TODO：解析真正的hash分区
-        String partitionNumber = logInfoDTO.getPartitionNumber();
-        this.applyPartitionKey(logInfoDTO.getPartitionTopic());
-        int partition =0;
-        //存储数据到队列中
-        Productor productor = new Productor();
-        productor.produce1(logInfoDTO.getPartitionTopic() ,partition,logInfoDTO) ;
+        if(!StringUtils.isEmpty(logInfoDTO.getPartitionTopic()) && !StringUtils.isEmpty(logInfoDTO.getPartitionNumber())){
+            //解析真正的hash分区
+            //TODO：解析真正的hash分区
+            String partitionNumber = logInfoDTO.getPartitionNumber();
+            this.applyPartitionKey(logInfoDTO.getPartitionTopic());
+            int partition =0;
+            //存储数据到队列中
+            Productor productor = new Productor();
+            productor.produce1(logInfoDTO.getPartitionTopic() ,partition,logInfoDTO) ;
+        }else {
+            try {
+                throw new Exception("主题或分区编码不能为空");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
