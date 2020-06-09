@@ -54,7 +54,11 @@ public class LogPlatformService {
             return new PageData<>();
         }
         int total = topics.size();
-        topics = topics.subList((pageable.getPageNumber()-1)*pageable.getPageSize(),pageable.getPageNumber()*pageable.getPageSize());
+        int start = (pageable.getPageNumber() - 1) * pageable.getPageSize();
+        int end = pageable.getPageNumber() * pageable.getPageSize();
+        start=start>=total?total-1:start;
+        end = end>total?total:end;
+        topics = topics.subList(start, end);
         List<TopicInfo> topicInfos = topicRepository.findAllByTopicKeyIn(topics);
         final Map<String,TopicInfo> temp = new HashMap<>();
         topicInfos.forEach(item->temp.put(item.getTopicKey(),item));
