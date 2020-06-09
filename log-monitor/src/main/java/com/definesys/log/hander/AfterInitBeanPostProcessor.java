@@ -37,7 +37,6 @@ public class AfterInitBeanPostProcessor  implements ApplicationListener<ContextR
    private static final Logger logger = LoggerFactory.getLogger(AfterInitBeanPostProcessor.class);
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        logger.info("spring容器初始化完成");
         String[] beanNamesForType = contextRefreshedEvent.getApplicationContext().getBeanNamesForAnnotation(LogConsumer.class);
         System.out.println(Arrays.toString(beanNamesForType));
         for (String name : beanNamesForType) {
@@ -61,7 +60,7 @@ public class AfterInitBeanPostProcessor  implements ApplicationListener<ContextR
      * @param port
      */
     private void startHeartbeatServer(int port) {
-        new Thread(()->{
+        Thread thread = new Thread(()->{
             EventLoopGroup group = new NioEventLoopGroup();
             EventLoopGroup sub = new NioEventLoopGroup();
             ServerBootstrap serverBootstrap = new ServerBootstrap();
@@ -92,10 +91,10 @@ public class AfterInitBeanPostProcessor  implements ApplicationListener<ContextR
                 group.shutdownGracefully();
                 sub.shutdownGracefully();
             }
-        }).start();
-
-
-
+        });
+        thread.setDaemon(true);
+        thread.setName("心跳检测服务端");
+        thread.start();
     }
 
     /**

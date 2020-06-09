@@ -64,7 +64,7 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
                         startHeartBeatClient(split[0],Integer.parseInt(split[1]),item);
                     }
                     try {
-                        heartBeatClient.sendMsg(channelFuture,"are you ok?");
+                        heartBeatClient.sendMsg(channelFuture,"are you ok");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -74,10 +74,9 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-
             }
         });
+        thread.setDaemon(true);
         thread.setName("心跳检测");
         thread.start();
     }
@@ -87,6 +86,7 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
             HeartBeatClient.startClient(hosts.get("host"),hosts.get("port"), (Map) hosts.get("names").get(0));
         });
         thread.setName("心跳检测客户端");
+        thread.setDaemon(true);
         thread.start();
     }
     private void startHeartBeatClient( String host,int port,String nodeName) {
@@ -96,6 +96,7 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
             HeartBeatClient.startClient(Collections.singletonList(host),Collections.singletonList(port),nodeNames );
         });
         thread.setName("心跳检测客户端");
+        thread.setDaemon(true);
         thread.start();
     }
     private Map<String, List<Object>> getHostOrPort(List<String> registeredModuleNames) {

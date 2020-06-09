@@ -30,7 +30,7 @@ public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
         ByteBuf buf = (ByteBuf) msg;
 
         String recieved = NettyUtils.getMessage(buf);
-        logger.info("服务器接收到客户端消息：" + recieved);
+        logger.info("heart beat ok [{}]" , recieved);
 
         try {
             ctx.writeAndFlush(NettyUtils.getSendByteBuf(CommonConst.HEARTBEAT_SUCCESS_MSG));
