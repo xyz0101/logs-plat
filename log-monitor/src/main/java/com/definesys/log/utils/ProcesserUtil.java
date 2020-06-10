@@ -44,13 +44,20 @@ public class ProcesserUtil {
 
     /**
      * 根据要忽略的处理节点获取初始的处理节点
+     * 1、获取系统里面的所有processer
+     * 2、用优先级队列保存节点
+     * 3、过滤需要排除的processer
+     * 4、吧processer封装成链表
+     * 5、返回processer链表的头结点
      * @param ignoreProcessers
      * @return
      */
     public static ProcesserNode<ProcessChain> getProcesser(Set<String> ignoreProcessers) {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
+        //获取系统里面的所有processer
         String[] beanNamesForType = applicationContext.getBeanNamesForType(AbstractProcessChain.class);
         PriorityQueue<Processer> priorityQueue = new PriorityQueue<Processer>(Comparator.comparingInt(Processer::getOrder));
+        //用优先级队列保存节点
         for (String name : beanNamesForType) {
             Object wacBean = applicationContext.getBean(name);
             Class<?> aClass = wacBean.getClass();
@@ -68,14 +75,17 @@ public class ProcesserUtil {
         if(processer!=null) {
             processerNode.value = processer.getProcesser();
             while ((processer = priorityQueue.poll()) != null) {
+                //过滤需要排除的processer
                 if (CollectionUtils.isEmpty(ignoreProcessers)||!ignoreProcessers.contains(processer.getName())) {
                     ProcesserNode<ProcessChain> node = new ProcesserNode<>();
+//                    把processer封装成链表
                     node.value = processer.getProcesser();
                     currentNode.next = node;
                     currentNode = currentNode.next;
                 }
             }
         }
+//        返回processer链表的头结点
         return processerNode;
     }
 }
