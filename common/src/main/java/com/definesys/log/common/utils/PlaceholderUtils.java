@@ -25,6 +25,12 @@ public class PlaceholderUtils {
      */
     public static final String PLACEHOLDER_SUFFIX = "}";
 
+    /**
+     * 占位符替换工具
+     * @param text 目标文本
+     * @param parameter 占位符数据源
+     * @return
+     */
     public static String resolvePlaceholders(String text, Map<String, Object> parameter) {
         if (parameter == null || parameter.isEmpty()) {
             return text;

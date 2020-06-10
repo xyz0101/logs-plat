@@ -35,6 +35,11 @@ import java.util.Map;
 @Component
 public class AfterInitBeanPostProcessor  implements ApplicationListener<ContextRefreshedEvent>  {
    private static final Logger logger = LoggerFactory.getLogger(AfterInitBeanPostProcessor.class);
+
+    /**
+     * 容器启动完成之后会执行
+     * @param contextRefreshedEvent
+     */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         String[] beanNamesForType = contextRefreshedEvent.getApplicationContext().getBeanNamesForAnnotation(LogConsumer.class);

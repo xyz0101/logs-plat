@@ -3,7 +3,7 @@ package com.definesys.log.entity;
 /**
  * @author ：jenkin
  * @date ：Created at 2020/5/27 11:26
- * @description：
+ * @description： 处理节点
  * @modified By：
  * @version: 1.0
  */

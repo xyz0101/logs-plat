@@ -48,20 +48,31 @@ public class UserConfig {
     @Column
     private String indexSuffix;
 
-    @ApiModelProperty(notes = "关键字集合，使用;分割")
+    @ApiModelProperty(notes = " 通用的关键字集合，对所有processer生效，使用;分割,这个里面的关键字会对所有的通知类型进行通知")
     @Column
     private String keyWords;
+
+    @ApiModelProperty(notes = "关键字,这里面会存储每一个处理节点对应的关键字，用JSON格式存储，比如：{'msn':{'keyWords':['error','123','错误']}} ，" +
+            "这个的意思就是短信通知方式会拦截关键字有error，错误，123 的日志,这里面也可以支持其他的字段，比如通知消息模板等等")
+    @Column
+    private String processersKeyWords;
+
     @ApiModelProperty(notes = "需要忽略的节点，使用:分割")
     @Column
     private String ignoreChains;
     @ApiModelProperty(notes = "邮件发送的目标邮箱,使用:分割")
     @Column
     private String targetEmails;
-    @ApiModelProperty("提醒的时候是否需要日志详细信息，当此选项为 1 的时候通知信息会在模板结束位置换行，追加上日志的详细内容")
+    @ApiModelProperty(" 通用设置，会对所有processer生效，提醒的时候是否需要日志详细信息，当此选项为 1 的时候通知信息会在模板结束位置换行，追加上日志的详细内容")
     @Column
     private Integer needLogContent;
-    @ApiModelProperty("通知的模板，当日志格式为JSON字符串的时候可以使用占位符 ${XXX} 替换   ，例如 存在字段" +
+    @ApiModelProperty("通用设置，对所有processer生效， 通知的模板，当日志格式为JSON字符串的时候可以使用占位符 ${XXX} 替换   ，例如 存在字段" +
             "logLevel=INFO，模板为 当前日志级别是${logLevel} ,输出结果为：当前日志级别是INFO")
     private String noticeTemplate;
+
+
+    @ApiModelProperty(notes = "短信通知的目标手机号，使用:分割")
+    @Column
+    private String msnPhoneNumber;
 
 }

@@ -63,10 +63,7 @@ public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        InetSocketAddress ipSocket = (InetSocketAddress) ctx.channel().remoteAddress();
-        int port = ipSocket.getPort();
         ByteBuf byteBuf = (ByteBuf) msg;
-
         String message = NettyUtils.getMessage(byteBuf);
         logger.info("Client接受的服务端信息 {}",message);
 

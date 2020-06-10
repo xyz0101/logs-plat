@@ -6,7 +6,7 @@ import lombok.Data;
 /**
  * @author ：jenkin
  * @date ：Created at 2020/5/27 9:48
- * @description：
+ * @description： 包装参数对象
  * @modified By：
  * @version: 1.0
  */

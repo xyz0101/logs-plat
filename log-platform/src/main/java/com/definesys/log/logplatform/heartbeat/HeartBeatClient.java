@@ -23,16 +23,21 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author ：jenkin
  * @date ：Created at 2020/6/7 11:26
- * @description：
+ * @description： 心跳检测客户端
  * @modified By：
  * @version: 1.0
  */
 @Component
 public class HeartBeatClient {
     private static Logger logger = LoggerFactory.getLogger(HeartBeatClient.class);
+    /**
+     * 当前活动的连接的信道，节点名称和信道的映射
+     */
     public static ConcurrentHashMap<String, ChannelFuture> channels =new ConcurrentHashMap<>();
-    public static AttributeKey<byte[]> attributeKey = AttributeKey.valueOf("nodeName");
     private static final int MAX = 3;
+    /**
+     * 节点名称和连接状态的映射关系
+     */
     public static final Map<String,Boolean> SERVER_STATUS = new HashMap<>();
     /**
      * 初始化Bootstrap
@@ -56,7 +61,12 @@ public class HeartBeatClient {
         return bootstrap;
     }
 
-    //   获取所有连接
+    /**
+     * 启动客户端
+     * @param hosts
+     * @param ports
+     * @param nodeNames
+     */
     public static  void startClient(List<Object> hosts, List<Object> ports,Map<String,String> nodeNames) {
         Bootstrap bootstrap = getBootstrap(null);
         for (int i = 0; i < hosts.size(); i++) {
@@ -84,7 +94,6 @@ public class HeartBeatClient {
     public static void doConnect(Bootstrap bootstrap, String host, int port,int count, String nodeName) {
         try {
             if (bootstrap != null) {
-                //
                 bootstrap.remoteAddress(host, port);
                 ChannelFuture f = bootstrap.connect().addListener((ChannelFuture futureListener) -> {
                     final EventLoop eventLoop = futureListener.channel().eventLoop();
@@ -98,7 +107,6 @@ public class HeartBeatClient {
                         }else{
                             SERVER_STATUS.put(nodeName,false);
                             channels.remove(nodeName);
-
                         }
                     }
                 });
@@ -112,11 +120,16 @@ public class HeartBeatClient {
         }
 
     }
-    //发送消息
+
+    /**
+     * 消息发送方法
+     * @param future 信道
+     * @param msg 消息
+     * @throws Exception
+     */
     public void sendMsg(ChannelFuture future, String msg) throws Exception {
         logger.info("开始发送消息");
         if (future != null && future.channel().isActive()) {
-
             Channel channel = future.channel();
             InetSocketAddress ipSocket = (InetSocketAddress) channel.remoteAddress();
             int port = ipSocket.getPort();

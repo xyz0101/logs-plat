@@ -19,6 +19,11 @@ public class RoundBalanceLoader implements BalanceLoader {
     //不可释放
     private static final ThreadLocal<Integer> COUNT = new ThreadLocal<>();
 
+    /**
+     * 通过ThreadLocal实现轮询负载均衡
+     * @param names
+     * @return
+     */
     @Override
     public String getModuleName(List<String> names) {
         if(!CollectionUtils.isEmpty(names)) {

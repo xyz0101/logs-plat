@@ -21,21 +21,27 @@ public class IndexUtil {
      *
      * @param suffix 后缀
      * @param logInFileTime 归档时间间隔
-     * @param timeUnit
+     * @param timeUnit 归档时间单位
      * @param systemKey 系统标志，topic^partitionkKey
      * @return
      */
     public static String getNewIndexName(String suffix,int logInFileTime,String timeUnit,String systemKey){
         try {
+            //获取当前的归档时间
             String timeStr = getTimeStr(timeUnit, logInFileTime);
             String[] split = systemKey.split("\\^");
             String sysKey = split[0] + "_" + split[1]+"_";
             String name = sysKey + suffix+"_" + timeStr;
+//            如果还没有达到下一次归档的时间就会返回null
             if(timeStr==null){
                  name = INDEX_NAMES.get(systemKey);
+//                 如果缓存的上一次时间为空，说明是第一次创建索引，需要返回初始的所有名称
                 if (name == null) {
+                    //获取当前的归档时间
                     timeStr =getCurrentTimeStr(timeUnit);
                     name = sysKey + suffix+"_" + timeStr;
+                    name=name.toLowerCase();
+                    //缓存
                     INDEX_NAMES.put(systemKey,name);
                 }
                 return name;
@@ -50,6 +56,14 @@ public class IndexUtil {
         return INDEX_NAMES.get(systemKey);
 
     }
+
+    /**
+     * 获取归档时间
+     * @param text 归档类型
+     * @param logInFileTime 时间间隔
+     * @return
+     * @throws ParseException
+     */
     public static String getTimeStr(String text,int logInFileTime) throws ParseException {
         Date date = new Date();
         //设置转换的日期格式
@@ -94,6 +108,12 @@ public class IndexUtil {
         return null;
     }
 
+    /**
+     * 获取当前时间的归档时间
+     * @param text
+     * @return
+     * @throws ParseException
+     */
     public static String getCurrentTimeStr(String text) throws ParseException {
         Date date = new Date();
         //设置转换的日期格式

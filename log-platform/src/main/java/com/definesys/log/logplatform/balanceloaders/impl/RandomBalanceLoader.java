@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author ：jenkin
  * @date ：Created at 2020/6/6 17:29
- * @description： 随机获取
+ * @description： 随机负载均衡的实现
  * @modified By：
  * @version: 1.0
  */
@@ -19,7 +19,11 @@ import java.util.List;
 @Primary
 public class RandomBalanceLoader implements BalanceLoader {
 
-
+    /**
+     * 返回一个随机的模块名称
+     * @param names
+     * @return
+     */
     @Override
     public String getModuleName(List<String> names) {
         if(!CollectionUtils.isEmpty(names)) {

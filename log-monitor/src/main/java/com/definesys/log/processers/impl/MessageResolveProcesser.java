@@ -35,13 +35,16 @@ public class MessageResolveProcesser extends AbstractProcessChain {
         if(param.getUserConfig()!=null&&param.getUserConfig().getKeyWords()!=null) {
 
             String msg=null;
+            // 判读是否包含了关键字
             if (ProcesserUtil.checkHasKeywords(param.getUserConfig().getKeyWords(),logMsg)) {
                 try {
                     JSONObject jsonObject = JSON.parseObject(logMsg);
+                    //进行占位符替换
                     msg = PlaceholderUtils.resolvePlaceholders(param.getUserConfig().getNoticeTemplate(),jsonObject);
                 }catch (Exception e){
                     logger.error(e.getMessage(),e);
                 }
+                //进行日志内容拼接
                 if(param.getUserConfig().getNeedLogContent()!=null&&param.getUserConfig().getNeedLogContent()==1){
                     msg=msg+"\n";
                     msg=msg+logMsg;

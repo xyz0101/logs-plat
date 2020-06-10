@@ -10,7 +10,11 @@ import org.springframework.web.client.RestTemplate;
  * @version: 1.0
  */
 public class HttpUtils {
-
+    /**
+     * 使用get的方式调用http请求
+     * @param remoteUrl
+     * @return
+     */
     public static String getHttpRequest(String remoteUrl) {
 
         if (remoteUrl != null) {

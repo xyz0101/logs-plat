@@ -50,6 +50,10 @@ public abstract class AbstractProcessChain implements ProcessChain  {
         logger.info("所有的节点都已经处理完成！");
     }
 
+    /**
+     * 核心模板处理方法，在该方法里面会调用子类实现的钩子方法
+     * @param param
+     */
     @Override
     public void process(WarpperParam<ProcessChain> param) {
         processMsg(param);
@@ -57,6 +61,7 @@ public abstract class AbstractProcessChain implements ProcessChain  {
 
     /**
      * 处理事件
+     *
      * @param param
      */
     private void processMsg(WarpperParam<ProcessChain> param) {

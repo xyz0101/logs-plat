@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * @author ：jenkin
  * @date ：Created at 2020/5/28 14:17
- * @description：
+ * @description： zookeeper操作相关的工具类
  * @modified By：
  * @version: 1.0
  */
@@ -35,19 +35,23 @@ public class ZkUtils {
     private static  Logger logger =  LoggerFactory.getLogger(ZkUtils.class);
     //消息处理节点的存储路径
     private static final String PROCESSERS = "/logs-plat/process/nodes";
+//    闭锁，阻塞事件监听线程
     private static final CountDownLatch COUNT_DOWN_LATCH = new CountDownLatch(1);
     private static final CountDownLatch UPDATE_COUNT_DOWN_LATCH = new CountDownLatch(1);
     public static final CuratorFramework client;
     // 哈希函数接口
     private static final String URL = "http://172.16.134.98/hash/hash/getHashValue?key=";
     //服务模块节点名称存储路径，用作服务的上下线
-    //存储了
     public static final String MODULE_NAME_PATH="/logplatform/module/names";
     //模块根路径 存储系统的主题，分区等等信息
     public static final String MODULE_NAME_ROOT="/logsync/";
 
     static{
+        /**
+         * 重试策略
+         */
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+        logger.info("connect to zookeeper");
         client = CuratorFrameworkFactory.newClient("172.16.161.51:2181",
                 5000, 5000, retryPolicy);
     }
@@ -57,11 +61,11 @@ public class ZkUtils {
      * 呈现树形目录的监听，可以设置监听深度，最大监听深度为 int 类型的最大值。
      */
     public static void zkWatch(String path,ZkEventAdd add,ZkEventDelete delete)  {
-        PathChildrenCache treeCache = new PathChildrenCache(client, path,true);
 
+        PathChildrenCache treeCache = new PathChildrenCache(client, path,true);
+        //为当前节点添加一个监听，该监听会监听节点下面所有的子节点的变化
         treeCache.getListenable().addListener((client, event) -> {
             ChildData eventData = event.getData();
-            System.out.println(event.getType().name());
             if(event.getType().name().equals(PathChildrenCacheEvent.Type.CHILD_ADDED.name())){
                 add.onAdded(eventData.getPath());
             }else if(event.getType().name().equals(PathChildrenCacheEvent.Type.CHILD_REMOVED.name())){
@@ -83,17 +87,16 @@ public class ZkUtils {
      */
     public static void zkWatchUpdate(String path,ZkEventUpdate update)  {
         PathChildrenCache treeCache = new PathChildrenCache(client, path,true);
-
+        //注册一个节点更新的监听，当节点更新的时候折柳就会收到通知
         treeCache.getListenable().addListener((client, event) -> {
             ChildData eventData = event.getData();
-            System.out.println(event.getType().name());
             if(event.getType().name().equals(PathChildrenCacheEvent.Type.CHILD_UPDATED.name())){
                 update.onUpdate(eventData.getPath(), new String(eventData.getData()));
             }
         });
         try {
             treeCache.start();
-            UPDATE_COUNT_DOWN_LATCH.await();  //如果不执行 watch.countDown()，进程会一致阻塞在 watch.await()
+            UPDATE_COUNT_DOWN_LATCH.await();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,35 +113,14 @@ public class ZkUtils {
                 client.create().creatingParentsIfNeeded().forPath(path, value.getBytes());
             } catch (Exception e) {
                 logger.error(e.getMessage());
-//                e.printStackTrace();
             }
         return true;
 
     }
 
-    public static boolean createSubNode(String parentName,String childName,String value,int maxSize){
-        String parent =  getModuleName() + "/" + parentName;
-        if(getSize()>=maxSize){
-            throw new UnsupportedOperationException("单机节点最多允许："+maxSize+"个");
-        }
-        String key = parent+"/"+childName;
-        try {
-            
-            String s = client.create()
-                    .creatingParentsIfNeeded()
-                    .withMode(CreateMode.PERSISTENT_SEQUENTIAL)
-                    .forPath(key, value.getBytes());
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally {
-            
-        }
-        return false;
-    }
 
     /**
-     * 注册日志处理节点
+     * 注册日志处理节点,会把系统所有的processer保存在当前的节点上面
      * @param nodes
      */
     public static void registerProcessNode(Map<String, String> nodes) {
@@ -153,7 +135,10 @@ public class ZkUtils {
     }
 
 
-
+    /**
+     * 获取当前系统里面所有的processer节点
+     * @return
+     */
     public static Map<String,String> getProcessNode(){
         try {
             byte[] bytes = client.getData().forPath(PROCESSERS);
@@ -222,6 +207,10 @@ public class ZkUtils {
         return moduleName;
     }
 
+    /**
+     * 获取当前系统的唯一标识
+     * @return
+     */
     private static String getNodeName() {
 
         String nodeName = System.getProperty("nodeName");
@@ -231,6 +220,11 @@ public class ZkUtils {
         return nodeName;
     }
 
+    /**
+     * 删除一个zookeeper节点
+     * @param path
+     * @return
+     */
     public static boolean deleteNode(String path){
         try {
             
@@ -244,24 +238,6 @@ public class ZkUtils {
         }
         return false;
     }
-
-    public static  int getSize(){
-        String key = getModuleName();
-        try {
-            
-
-            List<String> childs = client.getChildren().forPath(key);
-            if(childs!=null){
-                return childs.size();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally {
-            
-        }
-        return 0;
-    }
-
 
 
     /**
@@ -289,7 +265,7 @@ public class ZkUtils {
 
 
     /**
-     * h获取kafka内部的主题下的分区
+     * 获取kafka内部的主题下的分区
      * @param topic
      * @return
      */
@@ -308,7 +284,6 @@ public class ZkUtils {
      * @return
      */
     public static  List<String> getTopicUsedPartitions(String topic,String moduleName){
-//        List<String> subNodeValue = getSubNodeValue();
         List<String> subNodeValue = getSubNodeValue(moduleName);
         List<String> collect = subNodeValue.stream().filter(item -> item.startsWith(topic+"^")).collect(Collectors.toList());
         List<String> usedPartitions = new ArrayList<>();
@@ -320,10 +295,15 @@ public class ZkUtils {
         return usedPartitions;
     }
 
-    private static List<String> getSubNodeValue(String moduleName) {
+    /**
+     * 获取当前节点下面的所有子节点
+     * @param path
+     * @return
+     */
+    private static List<String> getSubNodeValue(String path) {
         try {
 
-            List<String> childs = client.getChildren().forPath(moduleName);
+            List<String> childs = client.getChildren().forPath(path);
             if(childs!=null){
                 return childs ;
             }
@@ -335,6 +315,10 @@ public class ZkUtils {
         return new ArrayList<>();
     }
 
+    /**
+     * 获取kafka里面的所有主题
+     * @return
+     */
     public static  List<String> getTopics(){
         try {
             return client.getChildren().forPath("/brokers/topics");
@@ -344,6 +328,12 @@ public class ZkUtils {
         return null;
     }
 
+    /**
+     * 使用hash函数把用户申请的分区转换为真正的kafka分区
+     * @param key
+     * @param topic
+     * @return
+     */
     public static String resolvePartition(String key,String topic){
         List<String> topicPartitions = getTopicPartitions(topic);
         int max = topicPartitions.size();
@@ -458,6 +448,11 @@ public class ZkUtils {
         return null;
     }
 
+    /**
+     * 判断节点是否存在
+     * @param path
+     * @return
+     */
     public static boolean isExists(String path) {
         try {
             Stat stat = ZkUtils.client.checkExists().forPath(path);
