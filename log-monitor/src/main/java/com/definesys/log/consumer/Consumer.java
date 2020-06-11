@@ -9,6 +9,7 @@ import com.definesys.log.entity.WarpperParam;
 import com.definesys.log.processers.ProcessChain;
 import com.definesys.log.utils.ProcesserUtil;
 import com.definesys.log.common.utils.zk.ZkUtils;
+import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -73,7 +74,7 @@ public class Consumer {
     static {
         //启动服务
         //初始化客户端
-        if (ZkUtils.client!=null) {
+        if (ZkUtils.client!=null&&ZkUtils.client.getState()!= CuratorFrameworkState.STARTED) {
             ZkUtils.client.start();
         }
         //启动服务，初始注册

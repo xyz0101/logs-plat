@@ -53,7 +53,8 @@ public class ZkUtils {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         logger.info("connect to zookeeper");
         client = CuratorFrameworkFactory.newClient("172.16.161.51:2181",
-                5000, 5000, retryPolicy);
+                15000, 15000, retryPolicy);
+        client.start();
     }
     /**
      * 注册监听

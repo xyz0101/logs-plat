@@ -82,9 +82,12 @@ public class HeartBeatClient {
                     logger.info( "第一次连接与服务端断开连接!在5s之后准备尝试重连!");
                     //5秒后重连
                     eventLoop.schedule(() -> doConnect(bootstrap, host, port,0,nodeName), 5, TimeUnit.SECONDS);
+                }else{
+                    logger.info("连接成功：{}",nodeName);
+                    channels.put(nodeName, futureListener);
+                    SERVER_STATUS.put(nodeName, true);
                 }
             });
-            channels.put(nodeName, future);
         }
     }
 
@@ -108,12 +111,13 @@ public class HeartBeatClient {
                             SERVER_STATUS.put(nodeName,false);
                             channels.remove(nodeName);
                         }
+                    }else{
+                        logger.info("连接成功：{}",nodeName);
+                        channels.put(nodeName, futureListener);
+                        SERVER_STATUS.put(nodeName, true);
                     }
+
                 });
-                if(f.isSuccess()) {
-                    channels.put(nodeName, f);
-                    SERVER_STATUS.put(nodeName, true);
-                }
             }
         } catch (Exception e) {
             logger.error("客户端连接失败!" + e.getMessage());
@@ -138,6 +142,7 @@ public class HeartBeatClient {
             channel.writeAndFlush(NettyUtils.getSendByteBuf(msg)).sync();
         } else {
             logger.error("消息发送失败,连接尚未建立!");
+
         }
     }
 

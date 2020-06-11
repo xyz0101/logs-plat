@@ -34,12 +34,7 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
      */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        if(ZkUtils.client.getState()!= CuratorFrameworkState.STARTED) {
-            logger.info("start zookeeper");
-            ZkUtils.client.start();
-        }else{
-            logger.warn("zkClient已经启动");
-        }
+
         //获取已注册的服务
         List<String> registeredModuleNames = ZkUtils.getRegisteredModuleNamesNoPath();
         Map<String,List<Object>> hosts = getHostOrPort(registeredModuleNames);
@@ -67,9 +62,9 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
                 names.forEach(item->{
                     String nodeData = ZkUtils.getNodeData(ZkUtils.MODULE_NAME_PATH+"/"+item);
                     String[] split = nodeData.split(":");
-                    logger.info("服务端数目：{}",names.size());
                     ChannelFuture channelFuture = HeartBeatClient.channels.get(item);
                     if (channelFuture == null || !channelFuture.channel().isActive()) {
+                        logger.info("启动心跳服务：{}",nodeData);
                         startHeartBeatClient(split[0],Integer.parseInt(split[1]),item);
                     }
                     try {
@@ -113,9 +108,10 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
         Thread thread = new Thread(()->{
             Map<String,String> nodeNames = new HashMap<>();
             nodeNames.put(host+":"+port,nodeName);
+            logger.info("开始启动服务{}",nodeName);
             HeartBeatClient.startClient(Collections.singletonList(host),Collections.singletonList(port),nodeNames );
         });
-        thread.setName("心跳检测客户端");
+        thread.setName("心跳检测客户端"+nodeName);
         thread.setDaemon(true);
         thread.start();
     }
