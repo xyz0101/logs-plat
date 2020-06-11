@@ -65,7 +65,7 @@ public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf byteBuf = (ByteBuf) msg;
         String message = NettyUtils.getMessage(byteBuf);
-        logger.info("Client接受的服务端信息 {}",message);
+//        logger.info("Client接受的服务端信息 {}",message);
 
     }
 

@@ -64,7 +64,6 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
                     String[] split = nodeData.split(":");
                     ChannelFuture channelFuture = HeartBeatClient.channels.get(item);
                     if (channelFuture == null || !channelFuture.channel().isActive()) {
-                        logger.info("启动心跳服务：{}",nodeData);
                         startHeartBeatClient(split[0],Integer.parseInt(split[1]),item);
                     }
                     try {
@@ -131,7 +130,7 @@ public class AfterInitBeanPostProcessor implements ApplicationListener<ContextRe
             //解析端口，名称
             registeredModuleNames.forEach(item->{
                 String nodeData = ZkUtils.getNodeData(ZkUtils.MODULE_NAME_PATH+"/"+item);
-                logger.info("服务：{}",nodeData);
+                logger.debug("服务：{}",nodeData);
                 nodeName.put(nodeData,item);
                 String[] split = nodeData.split(":");
                 hosts.add(split[0]);

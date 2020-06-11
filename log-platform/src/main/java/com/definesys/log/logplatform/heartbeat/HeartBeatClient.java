@@ -105,14 +105,14 @@ public class HeartBeatClient {
                             ZkUtils.offlineModuleName(nodeName);
                             channels.remove(nodeName);
                             //连接tcp服务器不成功 5s后重连
-                            logger.info(port + "服务器断线-----与服务端断开连接!在5s之后准备尝试重连!");
+                            logger.info( "服务器 {} 断线-----与服务端断开连接!在5s之后准备尝试重连!",nodeName);
                             eventLoop.schedule(() -> doConnect(bootstrap, host, port, count + 1, nodeName), 5, TimeUnit.SECONDS);
                         }else{
                             SERVER_STATUS.put(nodeName,false);
                             channels.remove(nodeName);
                         }
                     }else{
-                        logger.info("连接成功：{}",nodeName);
+                        logger.info("重新连接成功：{}",nodeName);
                         channels.put(nodeName, futureListener);
                         SERVER_STATUS.put(nodeName, true);
                     }
@@ -132,13 +132,12 @@ public class HeartBeatClient {
      * @throws Exception
      */
     public void sendMsg(ChannelFuture future, String msg) throws Exception {
-        logger.info("开始发送消息");
         if (future != null && future.channel().isActive()) {
             Channel channel = future.channel();
             InetSocketAddress ipSocket = (InetSocketAddress) channel.remoteAddress();
             int port = ipSocket.getPort();
             String host = ipSocket.getHostString();
-            logger.info("向服务端发消息：" +host+":" +port);
+            logger.debug("向服务端发消息：" +host+":" +port);
             channel.writeAndFlush(NettyUtils.getSendByteBuf(msg)).sync();
         } else {
             logger.error("消息发送失败,连接尚未建立!");
