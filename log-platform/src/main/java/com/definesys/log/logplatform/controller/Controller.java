@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -59,8 +60,8 @@ public class Controller {
     //获取所有的责任链
     @GetMapping("/listAllProcessNodes")
     @ApiOperation("获取所有的责任链")
-    public Response<Map<String,String>> listAllMySystemNodesByTopic() {
-        Map<String, String> processNode = ZkUtils.getProcessNode();
+    public Response<List<Map>> listAllMySystemNodesByTopic() {
+        List<Map> processNode = ZkUtils.getProcessNode();
         return Response.ok(processNode);
     }
 

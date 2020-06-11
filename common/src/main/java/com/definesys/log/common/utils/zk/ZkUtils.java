@@ -7,8 +7,6 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +15,8 @@ import org.springframework.util.StringUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -129,14 +127,15 @@ public class ZkUtils {
      * 注册日志处理节点,会把系统所有的processer保存在当前的节点上面
      * @param nodes
      */
-    public static void registerProcessNode(Map<String, String> nodes) {
+    public static void registerProcessNode(List<Map> nodes) {
         String jsonString = JSON.toJSONString(nodes);
         try {
             client.create()
                     .creatingParentsIfNeeded()
                     .forPath(PROCESSERS,jsonString.getBytes());
         } catch (Exception e) {
-            setNodeData(PROCESSERS,jsonString.getBytes());
+            logger.error(e.getMessage());
+            setNodeData(PROCESSERS,nodes);
         }
     }
 
@@ -145,15 +144,15 @@ public class ZkUtils {
      * 获取当前系统里面所有的processer节点
      * @return
      */
-    public static Map<String,String> getProcessNode(){
+    public static List<Map> getProcessNode(){
         try {
             byte[] bytes = client.getData().forPath(PROCESSERS);
-            String res = new String(bytes);
-            return JSON.parseObject(res, Map.class);
+            String res = new String(bytes, StandardCharsets.UTF_8);
+            return JSON.parseArray(res, Map.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new HashMap<>();
+        return new ArrayList<>();
     }
 
     /**

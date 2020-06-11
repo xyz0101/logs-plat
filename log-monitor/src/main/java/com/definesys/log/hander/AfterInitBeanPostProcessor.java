@@ -21,9 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author ：jenkin
@@ -135,15 +133,18 @@ public class AfterInitBeanPostProcessor  implements ApplicationListener<ContextR
         }
         String[] beanNamesForType = applicationContext.getBeanNamesForType(AbstractProcessChain.class);
         if(beanNamesForType!=null){
-            Map<String, String> nodes = new HashMap<>();
+            List<Map> nodes = new ArrayList<>();
+
             for (String bean : beanNamesForType) {
                 Object obj = applicationContext.getBean(bean);
                 if (obj.getClass().isAnnotationPresent(OrderAndName.class)) {
                     OrderAndName orderAndName =
                             obj.getClass().getDeclaredAnnotation(OrderAndName.class);
                     if(orderAndName.show()) {
-                        nodes.put("name", orderAndName.name());
-                        nodes.put("note", orderAndName.note());
+                        Map<String, String> node = new HashMap<>();
+                        node.put("name", orderAndName.name());
+                        node.put("note", orderAndName.note());
+                        nodes.add(node);
                     }
                 }
             }
