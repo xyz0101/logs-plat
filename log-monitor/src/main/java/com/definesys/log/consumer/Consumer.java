@@ -77,15 +77,14 @@ public class Consumer {
         if (ZkUtils.client!=null&&ZkUtils.client.getState()!= CuratorFrameworkState.STARTED) {
             ZkUtils.client.start();
         }
-        //启动服务，初始注册
-        ZkUtils.createNode(ROOTPATH,"");
+          ZkUtils.createNode(ROOTPATH,"");
         List<String> subNodeValue = ZkUtils.getSubNodeValue();
         for (String node : subNodeValue) {
             if (node.contains("^")) {
                 String[] split = node.split("\\^");
                 String topic = split[0];
                 String partitionStr = ZkUtils.resolvePartition(split[1], topic);
-                TOPICS.put(node,new TopicPartition(topic,Integer.parseInt(partitionStr)));
+                TOPICS.put(node, new TopicPartition(topic, Integer.parseInt(partitionStr)));
             }
         }
         TOPICS.forEach(Consumer::submitThread);

@@ -120,7 +120,11 @@ public class LogPlatformService {
         }else{
                 //创建节点
              path = balanceLoader.getModuleName(names) + "/" + topicAndPartition;
-             ZkUtils.createNode(path, val);
+            try {
+                ZkUtils.createNode(path, val);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
     }
