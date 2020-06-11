@@ -30,7 +30,7 @@ public abstract class AbstractEmailSender implements EmailSender {
     protected MimeMessageHelper helper;
 
     protected EmailTypeEnum mailType;
-    @Value("${spring.mail.username}")
+//    @Value("${spring.mail.username}")
     protected String from;
 
     @Override
