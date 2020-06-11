@@ -27,7 +27,7 @@ import java.util.concurrent.*;
 /**
  * @author ：jenkin
  * @date ：Created at 2020/5/27 16:57
- * @description：
+ * @description： 消费者核心类，每一个分区都会对应一个消费者线程
  * @modified By：
  * @version: 1.0
  */
@@ -68,7 +68,7 @@ public class Consumer {
     /**
      *当前服务的根路径，也就是模块名
      */
-    private static final String ROOTPATH ;
+    private static final String ROOTPATH =ZkUtils.getModuleName();
 
     static {
         //启动服务
@@ -76,8 +76,6 @@ public class Consumer {
         if (ZkUtils.client!=null) {
             ZkUtils.client.start();
         }
-        //获取根路径
-        ROOTPATH = ZkUtils.getModuleName();
         //启动服务，初始注册
         ZkUtils.createNode(ROOTPATH,"");
         List<String> subNodeValue = ZkUtils.getSubNodeValue();
@@ -111,6 +109,7 @@ public class Consumer {
             setConfigCache(path,nodeData);
         }
     }
+
     public static void main(String[] args){
         Consumer consumer = new Consumer();
         consumer.startConsumer();
@@ -207,6 +206,7 @@ public class Consumer {
                 logger.warn("线程中断，退出,注销节点：{}",key);
                 break;
             }
+            //如果分区总数发生变化，需要重新修改分区
             ConsumerRecords<String, String> records = kafkaConsumer.poll(1000);
             for (ConsumerRecord<String, String> record : records) {
                 Object message = JSON.parseObject(record.value()).get("message");
@@ -219,6 +219,8 @@ public class Consumer {
         kafkaConsumer.close();
         logger.warn("线程：{} 关闭",key);
     }
+
+
 
     /**
      * 属性配置

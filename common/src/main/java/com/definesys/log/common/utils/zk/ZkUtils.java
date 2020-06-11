@@ -67,9 +67,14 @@ public class ZkUtils {
         treeCache.getListenable().addListener((client, event) -> {
             ChildData eventData = event.getData();
             if(event.getType().name().equals(PathChildrenCacheEvent.Type.CHILD_ADDED.name())){
-                add.onAdded(eventData.getPath());
+                if(add!=null) {
+                    add.onAdded(eventData.getPath());
+                }
             }else if(event.getType().name().equals(PathChildrenCacheEvent.Type.CHILD_REMOVED.name())){
-                delete.onDelete(eventData.getPath());
+                if(delete!=null){
+                    delete.onDelete(eventData.getPath());
+
+                }
             }
         });
         try {
