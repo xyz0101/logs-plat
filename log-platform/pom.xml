@@ -8,7 +8,7 @@
         <version>2.3.0.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.definesys.log.platform</groupId>
+    <groupId>com.jenkin.log.platform</groupId>
     <artifactId>log-platform</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>log-platform</name>
@@ -73,7 +73,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.definesys.log.common</groupId>
+            <groupId>com.jenkin.log.common</groupId>
             <artifactId>common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>

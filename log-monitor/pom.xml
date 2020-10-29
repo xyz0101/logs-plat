@@ -15,7 +15,7 @@
     <description>Demo project for Spring Boot</description>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.definesys.log.monitor</groupId>
+    <groupId>com.jenkin.log.monitor</groupId>
     <artifactId>logmonitor</artifactId>
     <dependencies>
         <dependency>
@@ -91,7 +91,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.definesys.log.common</groupId>
+            <groupId>com.jenkin.log.common</groupId>
             <artifactId>common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
