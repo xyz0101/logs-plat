@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
@@ -180,7 +182,13 @@ public class LogPlatformService {
 
             }
         }else{
-            throw new RuntimeException("主题 ["+topicInfo.getTopicKey()+"] 已存在！");
+            List<String> partitions = ZkUtils.getTopicPartitions(TOPIC_PREFIX+topicInfo.getTopicKey());
+            if (partitions.size()<topicInfo.getPartitionNum()) {
+                addPartitions(TOPIC_PREFIX+topicInfo.getTopicKey(),topicInfo.getPartitionNum());
+            }else {
+
+                throw new RuntimeException("主题 [" + topicInfo.getTopicKey() + "] 已存在！");
+            }
         }
     }
 
@@ -244,8 +252,26 @@ public class LogPlatformService {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         } finally {
-//            create.close();
+            adminClient.close();
         }
         return false;
     }
+    public void addPartitions(String topic, Integer numPartitions)   {
+        Properties properties = new Properties();
+        properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaUtils.IP_ADDR);
+        AdminClient adminClient = AdminClient.create(properties);
+        try {
+
+            NewPartitions newPartitions = NewPartitions.increaseTo(numPartitions);
+            Map<String, NewPartitions> map = new HashMap<>(1, 1);
+            map.put(topic, newPartitions);
+            adminClient.createPartitions(map).all().get(30, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            e.printStackTrace();
+        } finally {
+            adminClient.close();
+        }
+
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.jenkin.log.entity;
 
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 
 import java.util.Date;
 
@@ -12,6 +13,7 @@ import java.util.Date;
  */
 @Data
 public class StandardMsg {
-    private Date timestamp = new Date();
+
+    private Date timestamp ;
     private String content;
 }

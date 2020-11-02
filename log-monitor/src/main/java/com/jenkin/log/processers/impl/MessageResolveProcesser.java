@@ -42,6 +42,7 @@ public class MessageResolveProcesser extends AbstractProcessChain {
                     //进行占位符替换
                     msg = PlaceholderUtils.resolvePlaceholders(param.getUserConfig().getNoticeTemplate(),jsonObject);
                 }catch (Exception e){
+                    msg =param.getUserConfig().getNoticeTemplate();
                     logger.error(e.getMessage(),e);
                 }
                 //进行日志内容拼接

@@ -8,6 +8,7 @@ import com.jenkin.log.entity.StandardMsg;
 import com.jenkin.log.entity.WarpperParam;
 import com.jenkin.log.processers.AbstractProcessChain;
 import com.jenkin.log.processers.ProcessChain;
+import com.jenkin.log.utils.EsUtils;
 import com.jenkin.log.utils.IndexUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 
@@ -50,23 +52,29 @@ public class SaveToElasticSearchProcesser extends AbstractProcessChain {
 
         if(!elasticsearchTemplate.indexExists(indexName)){
             logger.info("索引不存在，创建索引");
-            elasticsearchTemplate.createIndex(indexName);
+            try {
+                if (EsUtils.createIndex(indexName, elasticsearchTemplate)) {
+                    logger.info("索引 {} 创建成功！",indexName);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
+        StandardMsg standardMsg = new StandardMsg();
+        standardMsg.setTimestamp(new Date());
         try {
             JSONObject jsonObject = JSON.parseObject(data);
             Object message = jsonObject.get("message");
             JSONObject jsonMessage = JSON.parseObject(String.valueOf(message));
             jsonObject.put("message",jsonMessage);
             data = JSON.toJSONString(jsonObject);
+            standardMsg.setContent(data);
         } catch (Exception e) {
-
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("content",data);
-            jsonObject.put("@timestamp",new Date());
-            data = JSON.toJSONString(jsonObject);
+            standardMsg.setContent(data);
             logger.error(e.getMessage());
         }
+        data = JSON.toJSONString(standardMsg);
         IndexQuery index = new IndexQueryBuilder().withIndexName(indexName).withType("_doc").withSource(data).build();
         elasticsearchTemplate.bulkIndex(Collections.singletonList(index));
         logger.info("保存到ES");
