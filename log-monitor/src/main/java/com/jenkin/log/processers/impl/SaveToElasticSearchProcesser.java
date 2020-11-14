@@ -68,16 +68,22 @@ public class SaveToElasticSearchProcesser extends AbstractProcessChain {
             Object message = jsonObject.get("message");
             JSONObject jsonMessage = JSON.parseObject(String.valueOf(message));
             jsonObject.put("message",jsonMessage);
-            data = JSON.toJSONString(jsonObject);
-            standardMsg.setContent(data);
+//            data = JSON.toJSONString(jsonObject);
+            standardMsg.setContent(jsonObject);
         } catch (Exception e) {
-            standardMsg.setContent(data);
+            JSONObject jsonObject=null;
+            try {
+                jsonObject = JSON.parseObject(data);
+            }catch (Exception e1){
+                logger.error(e1.getMessage());
+            }
+            standardMsg.setContent(jsonObject==null?data:jsonObject);
             logger.error(e.getMessage());
         }
         data = JSON.toJSONString(standardMsg);
         IndexQuery index = new IndexQueryBuilder().withIndexName(indexName).withType("_doc").withSource(data).build();
         elasticsearchTemplate.bulkIndex(Collections.singletonList(index));
-        logger.info("保存到ES");
+        logger.info("保存到ES, {}",data);
 
     }
 }

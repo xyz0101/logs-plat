@@ -15,5 +15,5 @@ import java.util.Date;
 public class StandardMsg {
 
     private Date timestamp ;
-    private String content;
+    private Object content;
 }

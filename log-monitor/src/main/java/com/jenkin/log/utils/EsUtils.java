@@ -32,6 +32,7 @@ public class EsUtils {
                 // 设置分片数为3， 副本为2
                 .put("index.number_of_shards", 3)
                 .put("index.number_of_replicas", 2)
+
         );
 
         // 这里创建索引结构
@@ -52,6 +53,7 @@ public class EsUtils {
         XContentBuilder builder = XContentFactory.jsonBuilder();
         builder.startObject();
         {
+            builder.field("dynamic",true);
             builder.startObject("properties");
 
             {
@@ -61,14 +63,7 @@ public class EsUtils {
                 }
                 builder.endObject();
             }
-            {
-                builder.startObject("content");
-                {
-                    builder.field("type", "text");
-//                    builder.field("analyzer", "ik_smart");
-                }
-                builder.endObject();
-            }
+
 
             builder.endObject();
         }

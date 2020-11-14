@@ -20,7 +20,7 @@ public class TransportClientConfig extends ElasticsearchConfigurationSupport {
     public Client elasticsearchClient() throws UnknownHostException {
         Settings settings = Settings.builder().put("cluster.name", "docker-cluster").build();
         TransportClient client = new PreBuiltTransportClient(settings);
-        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.64.128"), 9300));
+        client.addTransportAddress(new TransportAddress(InetAddress.getByName("mall.jenkin.tech"), 7720));
         return client;
     }
 

@@ -30,9 +30,9 @@ public class DBUtils {
         Connection conn = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = "jdbc:mysql://192.168.64.128:3306/log_platform?characterEncoding=utf8";
+            String url = "jdbc:mysql://mall.jenkin.tech:7307/log_platform?characterEncoding=utf8";
             String user = "root";
-            String password = "123456";
+            String password = "Zhoujin@Zcr0807";
             System.out.println("开始获取连接");
 
             conn = DriverManager.getConnection(url, user, password);
